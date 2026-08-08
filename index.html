@@ -1,0 +1,707 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#111827" />
+  <title>기간제근로자 QR 출퇴근·임금관리</title>
+  <style>
+    :root{
+      --bg:#f4f6f8;--card:#fff;--text:#111827;--muted:#667085;--line:#e5e7eb;
+      --primary:#1f6feb;--primary2:#1558b0;--success:#16803a;--danger:#c62828;
+      --warning:#9a6700;--soft:#eef4ff;--shadow:0 10px 30px rgba(17,24,39,.08);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans KR",Arial,sans-serif;line-height:1.5}
+    button,input,select,textarea{font:inherit}
+    button{cursor:pointer}
+    .hidden{display:none!important}
+    .app{max-width:1180px;margin:0 auto;padding:18px 16px 70px}
+    .topbar{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:16px}
+    .brand h1{font-size:23px;line-height:1.2;margin:0 0 4px}.brand p{margin:0;color:var(--muted);font-size:13px}
+    .connection{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);white-space:nowrap}
+    .dot{width:9px;height:9px;border-radius:50%;background:#98a2b3}.dot.ok{background:#22c55e}.dot.err{background:#ef4444}
+    .mode-tabs{display:grid;grid-template-columns:1fr 1fr;background:#e9edf3;padding:4px;border-radius:14px;margin-bottom:16px}
+    .mode-tab{border:0;background:transparent;padding:11px 12px;border-radius:11px;font-weight:800;color:#667085}.mode-tab.active{background:#fff;color:#111827;box-shadow:0 2px 8px rgba(17,24,39,.08)}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .card-pad{padding:20px}.card-title{font-size:18px;font-weight:900;margin:0 0 4px}.card-sub{font-size:13px;color:var(--muted);margin:0 0 18px}
+    .setup-warning{padding:14px 16px;border-radius:14px;background:#fff7d6;border:1px solid #f2d675;margin-bottom:16px;color:#6b4f00;font-size:13px}
+    .setup-warning code{font-weight:800}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    .field{display:flex;flex-direction:column;gap:7px}.field label{font-size:13px;font-weight:800;color:#344054}
+    .field input,.field select,.field textarea{width:100%;border:1px solid #d0d5dd;background:#fff;border-radius:12px;padding:12px 13px;outline:none;color:#111827}
+    .field input:focus,.field select:focus,.field textarea:focus{border-color:#78aaf4;box-shadow:0 0 0 3px rgba(31,111,235,.12)}
+    .field textarea{min-height:80px;resize:vertical}.hint{font-size:12px;color:var(--muted)}
+    .staff-panel{max-width:620px;margin:0 auto}.staff-clock{text-align:center;padding:16px 0 4px}.staff-clock .date{font-size:14px;color:var(--muted)}.staff-clock .time{font-size:38px;font-weight:900;letter-spacing:-1px;font-variant-numeric:tabular-nums}
+    .pin-input{font-size:24px!important;letter-spacing:8px;text-align:center;font-weight:900}
+    .action-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}.btn{border:0;border-radius:13px;padding:13px 15px;font-weight:900;transition:.15s}.btn:disabled{opacity:.45;cursor:not-allowed}.btn-primary{background:var(--primary);color:#fff}.btn-primary:hover{background:var(--primary2)}.btn-success{background:var(--success);color:#fff}.btn-danger{background:var(--danger);color:#fff}.btn-soft{background:#eef2f6;color:#344054}.btn-outline{background:#fff;border:1px solid #d0d5dd;color:#344054}.btn-sm{padding:8px 10px;border-radius:10px;font-size:12px}.btn-wide{width:100%}
+    .today-box{margin-top:16px;background:#f8fafc;border:1px solid var(--line);border-radius:14px;padding:14px}.today-box .today-title{font-size:12px;color:var(--muted);font-weight:800}.today-values{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}.today-value{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px}.today-value span{display:block;color:var(--muted);font-size:11px}.today-value strong{font-size:19px}
+    .admin-login{max-width:520px;margin:0 auto}.admin-head{display:flex;gap:10px;align-items:end;justify-content:space-between;margin-bottom:14px}.admin-head .month-wrap{max-width:180px}.admin-tabs{display:flex;gap:7px;overflow:auto;padding-bottom:4px;margin:0 0 14px}.admin-tab{white-space:nowrap;border:1px solid var(--line);background:#fff;border-radius:999px;padding:9px 13px;font-weight:800;color:#667085}.admin-tab.active{background:#111827;color:#fff;border-color:#111827}
+    .summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}.summary-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px}.summary-card .label{font-size:11px;color:var(--muted);font-weight:800}.summary-card .value{font-size:22px;font-weight:900;margin-top:3px}.summary-card .unit{font-size:12px;color:var(--muted);font-weight:600}
+    .toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}.toolbar .grow{flex:1}.toolbar select,.toolbar input{border:1px solid #d0d5dd;border-radius:11px;padding:9px 11px;background:#fff}
+    .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:14px;background:#fff}.table{width:100%;border-collapse:collapse;min-width:760px}.table th,.table td{padding:10px 11px;border-bottom:1px solid #eef0f2;text-align:left;font-size:12px;vertical-align:middle}.table th{position:sticky;top:0;background:#f8fafc;color:#475467;font-weight:900;z-index:1}.table tr:last-child td{border-bottom:0}.table .num{text-align:right;font-variant-numeric:tabular-nums}.table .center{text-align:center}.table tbody tr:hover{background:#fbfdff}
+    .status{display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:900;background:#eef2f6;color:#475467}.status.work{background:#e8f7ee;color:#166534}.status.leave{background:#edf4ff;color:#1d4ed8}.status.absence{background:#fff0f0;color:#b42318}.status.holiday{background:#f4f3ff;color:#6d28d9}
+    .money{font-variant-numeric:tabular-nums;font-weight:800}.notice{background:#fffaf0;border:1px solid #f4d99b;color:#7a4e00;padding:11px 13px;border-radius:12px;font-size:12px;margin-bottom:12px}
+    .employee-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.employee-card{border:1px solid var(--line);border-radius:14px;padding:14px;background:#fff}.employee-card.inactive{opacity:.6}.employee-card-head{display:flex;align-items:start;justify-content:space-between;gap:8px}.employee-name{font-weight:900;font-size:16px}.employee-meta{color:var(--muted);font-size:12px;margin-top:4px}.employee-pay{margin-top:10px;font-size:13px}
+    .audit-item{padding:12px;border-bottom:1px solid #eef0f2}.audit-item:last-child{border-bottom:0}.audit-top{display:flex;justify-content:space-between;gap:10px}.audit-action{font-weight:900;font-size:12px}.audit-time{font-size:11px;color:var(--muted)}.audit-body{font-size:12px;color:#475467;margin-top:5px}
+    .modal-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.55);display:flex;align-items:flex-end;justify-content:center;padding:12px;z-index:1000}.modal{width:min(680px,100%);max-height:92vh;overflow:auto;background:#fff;border-radius:20px 20px 14px 14px;box-shadow:0 25px 60px rgba(0,0,0,.22)}.modal-head{position:sticky;top:0;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid var(--line);z-index:2}.modal-title{font-size:17px;font-weight:900}.modal-body{padding:18px}.modal-foot{position:sticky;bottom:0;background:#fff;border-top:1px solid var(--line);padding:13px 18px;display:flex;gap:8px;justify-content:flex-end}
+    .close{width:34px;height:34px;border:0;border-radius:50%;background:#eef2f6;font-size:20px}
+    .toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,30px);opacity:0;pointer-events:none;background:#111827;color:#fff;padding:12px 16px;border-radius:12px;box-shadow:0 15px 35px rgba(0,0,0,.25);z-index:3000;transition:.2s;max-width:min(92vw,520px);font-size:13px;font-weight:700;text-align:center}.toast.show{opacity:1;transform:translate(-50%,0)}.toast.error{background:#991b1b}.toast.ok{background:#166534}
+    .footer{margin-top:22px;text-align:center;color:#98a2b3;font-size:11px}
+    @media(max-width:780px){
+      .app{padding:14px 11px 56px}.brand h1{font-size:19px}.brand p{display:none}.connection span:last-child{display:none}
+      .grid2,.grid3{grid-template-columns:1fr}.summary-grid{grid-template-columns:1fr 1fr}.employee-cards{grid-template-columns:1fr}.card-pad{padding:16px}.staff-clock .time{font-size:34px}.admin-head{align-items:stretch;flex-direction:column}.admin-head .month-wrap{max-width:none}.modal-backdrop{padding:0;align-items:flex-end}.modal{border-radius:20px 20px 0 0}.table{min-width:680px}
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <h1>기간제근로자 출퇴근·임금관리</h1>
+      <p>QR 출퇴근 · 근태관리 · 월별 임금 자동계산</p>
+    </div>
+    <div class="connection"><span id="statusDot" class="dot"></span><span id="statusText">연결 확인 중</span></div>
+  </header>
+
+  <div id="setupWarning" class="setup-warning hidden">
+    <strong>Supabase 연결값이 아직 없습니다.</strong><br>
+    이 파일 하단의 <code>SUPABASE_URL</code>과 <code>SUPABASE_PUBLISHABLE_KEY</code> 두 값만 입력한 뒤 GitHub Pages에 올리세요.
+  </div>
+
+  <div class="mode-tabs">
+    <button class="mode-tab active" data-mode="staff">직원 출퇴근</button>
+    <button class="mode-tab" data-mode="admin">관리자</button>
+  </div>
+
+  <!-- 직원 화면 -->
+  <section id="staffMode" class="staff-panel">
+    <div class="card card-pad">
+      <h2 class="card-title">출퇴근 등록</h2>
+      <p class="card-sub">사업장 QR을 찍고 본인 이름과 휴대폰 뒤 4자리를 입력하세요.</p>
+
+      <div class="staff-clock">
+        <div id="liveDate" class="date">-</div>
+        <div id="liveTime" class="time">--:--:--</div>
+        <div class="hint">화면 시계는 참고용이며 실제 기록은 Supabase 서버시간을 사용합니다.</div>
+      </div>
+
+      <div class="field" style="margin-top:18px">
+        <label for="employeeSelect">근무자</label>
+        <select id="employeeSelect"><option value="">직원을 선택하세요</option></select>
+      </div>
+
+      <div class="field" style="margin-top:12px">
+        <label for="employeePin">휴대폰 뒤 4자리 PIN</label>
+        <input id="employeePin" class="pin-input" type="password" inputmode="numeric" maxlength="8" autocomplete="off" placeholder="••••" />
+        <div class="hint">PIN이 중복되는 직원만 관리자가 다른 4자리로 지정합니다.</div>
+      </div>
+
+      <div class="action-row">
+        <button id="checkInBtn" class="btn btn-primary">출근</button>
+        <button id="checkOutBtn" class="btn btn-success">퇴근</button>
+      </div>
+      <button id="todayStatusBtn" class="btn btn-soft btn-wide" style="margin-top:10px">오늘 기록 확인</button>
+
+      <div id="todayBox" class="today-box hidden">
+        <div class="today-title">오늘 출퇴근</div>
+        <div class="today-values">
+          <div class="today-value"><span>출근</span><strong id="todayIn">-</strong></div>
+          <div class="today-value"><span>퇴근</span><strong id="todayOut">-</strong></div>
+        </div>
+        <div id="todayMessage" class="hint" style="margin-top:9px"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 관리자 로그인 -->
+  <section id="adminMode" class="hidden">
+    <div id="adminLogin" class="admin-login card card-pad">
+      <h2 class="card-title">관리자 로그인</h2>
+      <p class="card-sub">근태 수정, 직원 등록, 월별 임금계산은 관리자 PIN이 필요합니다.</p>
+      <div class="field">
+        <label for="adminPinInput">관리자 PIN</label>
+        <input id="adminPinInput" type="password" inputmode="numeric" autocomplete="off" placeholder="관리자 PIN" />
+      </div>
+      <button id="adminLoginBtn" class="btn btn-primary btn-wide" style="margin-top:14px">관리자 로그인</button>
+      <div class="hint" style="margin-top:10px">최초 설치 기본 PIN은 258800이며, 정상 작동 확인 후 변경을 권장합니다.</div>
+    </div>
+
+    <div id="adminApp" class="hidden">
+      <div class="admin-head">
+        <div>
+          <div class="card-title">관리자 화면</div>
+          <div class="card-sub" style="margin:0">직원·근태·임금을 한 화면에서 관리합니다.</div>
+        </div>
+        <div class="field month-wrap">
+          <label for="adminMonth">조회월</label>
+          <input id="adminMonth" type="month" />
+        </div>
+      </div>
+
+      <div class="admin-tabs">
+        <button class="admin-tab active" data-admin-tab="attendance">근태관리</button>
+        <button class="admin-tab" data-admin-tab="payroll">임금지출부</button>
+        <button class="admin-tab" data-admin-tab="employees">직원관리</button>
+        <button class="admin-tab" data-admin-tab="audit">수정이력</button>
+        <button class="admin-tab" data-admin-tab="settings">설정</button>
+      </div>
+
+      <section id="tab-attendance">
+        <div id="attendanceSummary" class="summary-grid"></div>
+        <div class="card card-pad">
+          <div class="toolbar">
+            <select id="attendanceEmployeeFilter" class="grow"><option value="">직원 선택</option></select>
+            <button id="attendanceCsvBtn" class="btn btn-outline btn-sm">출근부 CSV</button>
+            <button id="reloadAdminBtn" class="btn btn-soft btn-sm">새로고침</button>
+          </div>
+          <div class="table-wrap">
+            <table class="table" id="attendanceTable">
+              <thead><tr><th>날짜</th><th>요일</th><th>출근</th><th>퇴근</th><th>근태</th><th class="num">유급일수</th><th class="num">연장</th><th>비고</th><th></th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="tab-payroll" class="hidden">
+        <div class="notice">자동계산은 <strong>일급 × 유급인정일수 + 연장근로수당 + 기타수당 - 공제</strong> 기준의 관리용 계산입니다. 주휴수당·4대보험·세금 등 기관별 지급기준은 현재 자동 산정하지 않으며 필요한 금액은 기타수당/공제에 입력할 수 있습니다.</div>
+        <div id="payrollSummaryCards" class="summary-grid"></div>
+        <div class="card card-pad">
+          <div class="toolbar">
+            <div class="grow"><strong id="payrollMonthTitle">월 임금지출부</strong></div>
+            <button id="payrollCsvBtn" class="btn btn-outline btn-sm">임금지출부 CSV</button>
+          </div>
+          <div class="table-wrap">
+            <table class="table" id="payrollTable">
+              <thead><tr><th>직원</th><th class="num">근무일</th><th class="num">연가</th><th class="num">유급일수</th><th class="num">일급</th><th class="num">기본임금</th><th class="num">연장수당</th><th class="num">기타수당</th><th class="num">공제</th><th class="num">실지급액</th><th></th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="tab-employees" class="hidden">
+        <div class="card card-pad">
+          <div class="toolbar">
+            <div class="grow"><strong>직원 관리</strong></div>
+            <button id="newEmployeeBtn" class="btn btn-primary btn-sm">+ 직원 등록</button>
+          </div>
+          <div id="employeeCards" class="employee-cards"></div>
+        </div>
+      </section>
+
+      <section id="tab-audit" class="hidden">
+        <div class="card">
+          <div class="card-pad" style="padding-bottom:10px"><strong>수정·등록 이력</strong><div class="hint">출퇴근 원본 및 관리자 변경사항을 추적합니다.</div></div>
+          <div id="auditList"></div>
+        </div>
+      </section>
+
+      <section id="tab-settings" class="hidden">
+        <div class="card card-pad" style="max-width:600px">
+          <h3 class="card-title">관리자 PIN 변경</h3>
+          <p class="card-sub">변경하면 현재 관리자 세션이 종료됩니다.</p>
+          <div class="field"><label for="newAdminPin">새 관리자 PIN</label><input id="newAdminPin" type="password" inputmode="numeric" placeholder="4자리 이상" /></div>
+          <div class="field" style="margin-top:10px"><label for="newAdminPin2">새 PIN 확인</label><input id="newAdminPin2" type="password" inputmode="numeric" placeholder="다시 입력" /></div>
+          <button id="changeAdminPinBtn" class="btn btn-primary" style="margin-top:14px">PIN 변경</button>
+          <button id="adminLogoutBtn" class="btn btn-outline" style="margin-top:14px;margin-left:6px">로그아웃</button>
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <div class="footer">출퇴근 기록은 서버시간 기준 · 직원 PIN은 해시 저장 · 관리자 수정이력 보존</div>
+</div>
+
+<!-- 직원 등록/수정 모달 -->
+<div id="employeeModal" class="modal-backdrop hidden">
+  <div class="modal">
+    <div class="modal-head"><div id="employeeModalTitle" class="modal-title">직원 등록</div><button class="close" data-close="employeeModal">×</button></div>
+    <div class="modal-body">
+      <input id="editEmployeeId" type="hidden" />
+      <div class="grid2">
+        <div class="field"><label>이름 *</label><input id="editEmployeeName" placeholder="홍길동" /></div>
+        <div class="field"><label>직원코드</label><input id="editEmployeeCode" placeholder="비우면 자동 생성" /></div>
+      </div>
+      <div class="grid2" style="margin-top:12px">
+        <div class="field"><label>휴대폰 뒤 4자리 PIN *</label><input id="editEmployeePin" type="password" inputmode="numeric" maxlength="8" placeholder="수정 시 비우면 유지" /><div class="hint">중복 PIN은 저장되지 않습니다.</div></div>
+        <div class="field"><label>근무장소</label><input id="editEmployeeWorkplace" placeholder="예: 거점소독센터" /></div>
+      </div>
+      <div class="grid2" style="margin-top:12px">
+        <div class="field"><label>근무 시작일</label><input id="editEmployeeStart" type="date" /></div>
+        <div class="field"><label>근무 종료일</label><input id="editEmployeeEnd" type="date" /></div>
+      </div>
+      <div class="grid3" style="margin-top:12px">
+        <div class="field"><label>일급(원)</label><input id="editDailyWage" type="number" min="0" step="1" value="100000" /></div>
+        <div class="field"><label>1일 기준시간</label><input id="editStandardHours" type="number" min="0.5" max="24" step="0.5" value="8" /></div>
+        <div class="field"><label>연장배수</label><input id="editOvertimeMultiplier" type="number" min="0" step="0.1" value="1.5" /></div>
+      </div>
+      <div class="grid2" style="margin-top:12px">
+        <div class="field"><label>기본 출근시간</label><input id="editScheduledStart" type="time" /></div>
+        <div class="field"><label>기본 퇴근시간</label><input id="editScheduledEnd" type="time" /></div>
+      </div>
+      <label style="display:flex;align-items:center;gap:8px;margin-top:15px;font-weight:800;font-size:13px"><input id="editEmployeeActive" type="checkbox" checked /> 근무중(활성)</label>
+    </div>
+    <div class="modal-foot"><button class="btn btn-outline" data-close="employeeModal">취소</button><button id="saveEmployeeBtn" class="btn btn-primary">저장</button></div>
+  </div>
+</div>
+
+<!-- 일자 근태 모달 -->
+<div id="dayModal" class="modal-backdrop hidden">
+  <div class="modal">
+    <div class="modal-head"><div id="dayModalTitle" class="modal-title">근태 입력</div><button class="close" data-close="dayModal">×</button></div>
+    <div class="modal-body">
+      <input id="dayEmployeeId" type="hidden" /><input id="dayDate" type="hidden" />
+      <div class="field"><label>근태 구분</label><select id="dayStatus"></select></div>
+      <div class="grid2" style="margin-top:12px">
+        <div class="field"><label>출근시간</label><input id="dayCheckIn" type="time" /></div>
+        <div class="field"><label>퇴근시간</label><input id="dayCheckOut" type="time" /></div>
+      </div>
+      <div class="grid2" style="margin-top:12px">
+        <div class="field"><label>유급 인정일수</label><input id="dayPaidUnits" type="number" min="0" max="2" step="0.5" /></div>
+        <div class="field"><label>연장근로시간</label><input id="dayOvertime" type="number" min="0" max="24" step="0.5" value="0" /></div>
+      </div>
+      <div class="field" style="margin-top:12px"><label>비고</label><textarea id="dayMemo" placeholder="연가, 출장, 출퇴근 누락 사유 등"></textarea></div>
+      <div class="field" style="margin-top:12px"><label>수정 사유</label><input id="dayReason" placeholder="예: QR 출근 누락 확인 후 관리자 입력" /></div>
+    </div>
+    <div class="modal-foot"><button id="deleteDayBtn" class="btn btn-danger" style="margin-right:auto">기록 삭제</button><button class="btn btn-outline" data-close="dayModal">취소</button><button id="saveDayBtn" class="btn btn-primary">저장</button></div>
+  </div>
+</div>
+
+<!-- 급여 조정 모달 -->
+<div id="payrollModal" class="modal-backdrop hidden">
+  <div class="modal">
+    <div class="modal-head"><div id="payrollModalTitle" class="modal-title">수당/공제 조정</div><button class="close" data-close="payrollModal">×</button></div>
+    <div class="modal-body">
+      <input id="payrollEmployeeId" type="hidden" />
+      <div class="grid2">
+        <div class="field"><label>기타수당(원)</label><input id="payrollAllowance" type="number" step="1" value="0" /></div>
+        <div class="field"><label>공제액(원)</label><input id="payrollDeduction" type="number" step="1" value="0" /></div>
+      </div>
+      <div class="field" style="margin-top:12px"><label>메모</label><textarea id="payrollMemo" placeholder="주휴수당, 특별수당, 보험료, 세금 등 수기 반영 내용"></textarea></div>
+    </div>
+    <div class="modal-foot"><button class="btn btn-outline" data-close="payrollModal">취소</button><button id="savePayrollBtn" class="btn btn-primary">저장</button></div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+"use strict";
+
+// =====================================================================
+// ★ 이 두 값만 본인 Supabase 프로젝트 값으로 바꾸세요.
+// Supabase > Settings > API Keys (또는 Connect)에서 확인
+// Publishable key(sb_publishable_...) 또는 구형 anon public key 사용 가능
+// service_role / secret key는 절대 넣지 마세요.
+// =====================================================================
+const SUPABASE_URL = "https://rpzzpbdbyvxvrnypwoxy.supabase.co/rest/v1/";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_Eo8ojow0_t0FQqpmXmCwww_zGRl62h5";
+
+const STATUS = Object.freeze({
+  WORK:{label:"근무",paid:1,cls:"work"},
+  ANNUAL_LEAVE:{label:"연가",paid:1,cls:"leave"},
+  SICK_LEAVE:{label:"병가",paid:0,cls:"leave"},
+  PUBLIC_LEAVE:{label:"공가",paid:1,cls:"leave"},
+  BUSINESS_TRIP:{label:"출장",paid:1,cls:"leave"},
+  ABSENCE:{label:"결근",paid:0,cls:"absence"},
+  HOLIDAY:{label:"휴일",paid:0,cls:"holiday"},
+  PAID_HOLIDAY:{label:"유급휴일",paid:1,cls:"holiday"},
+  OTHER:{label:"기타",paid:0,cls:""}
+});
+
+const state = {
+  configured:false,
+  staffEmployees:[],
+  adminPin:sessionStorage.getItem("att_admin_pin") || "",
+  employees:[],
+  monthData:[],
+  payrollAdjustments:[],
+  audit:[],
+  currentAdminTab:"attendance",
+  loading:false
+};
+
+const $ = id => document.getElementById(id);
+const qsa = s => [...document.querySelectorAll(s)];
+
+function isConfigured(){
+  return /^https:\/\/.+\.supabase\.co$/i.test(SUPABASE_URL)
+    && !SUPABASE_PUBLISHABLE_KEY.includes("YOUR_")
+    && SUPABASE_PUBLISHABLE_KEY.length > 20;
+}
+
+function setConnection(ok,text){
+  $("statusDot").className = "dot " + (ok===true?"ok":ok===false?"err":"");
+  $("statusText").textContent = text;
+}
+
+let toastTimer;
+function toast(message,type=""){
+  clearTimeout(toastTimer);
+  const el=$("toast");
+  el.textContent=message;
+  el.className=`toast show ${type}`.trim();
+  toastTimer=setTimeout(()=>el.className="toast",3200);
+}
+
+function escapeHtml(v){
+  return String(v ?? "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
+}
+function num(v){ return Number(v || 0); }
+function money(v){ return Math.round(num(v)).toLocaleString("ko-KR"); }
+function pad2(n){return String(n).padStart(2,"0")}
+function localMonth(){const d=new Date();return `${d.getFullYear()}-${pad2(d.getMonth()+1)}`}
+function monthDays(month){const [y,m]=month.split("-").map(Number);return new Date(y,m,0).getDate()}
+function dow(dateStr){const d=new Date(`${dateStr}T12:00:00`);return ["일","월","화","수","목","금","토"][d.getDay()]}
+function dateLabel(dateStr){const [,m,d]=dateStr.split("-");return `${Number(m)}/${Number(d)}`}
+function statusMeta(code){return STATUS[code] || {label:code||"미입력",paid:0,cls:""}}
+function statusBadge(code){if(!code)return '<span class="status">미입력</span>';const s=statusMeta(code);return `<span class="status ${s.cls}">${escapeHtml(s.label)}</span>`}
+
+async function rpc(name, params={}){
+  if(!state.configured) throw new Error("Supabase 연결값을 먼저 입력해 주세요.");
+  const res=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${name}`,{
+    method:"POST",
+    headers:{"apikey":SUPABASE_PUBLISHABLE_KEY,"Content-Type":"application/json","Accept":"application/json"},
+    body:JSON.stringify(params)
+  });
+  const text=await res.text();
+  let data=null;
+  if(text){try{data=JSON.parse(text)}catch{data=text}}
+  if(!res.ok){
+    const msg=(data && (data.message||data.hint||data.details)) || `Supabase 오류 (${res.status})`;
+    throw new Error(msg);
+  }
+  return data;
+}
+
+function setBusy(button,busy,label){
+  if(!button)return;
+  if(busy){button.dataset.oldText=button.textContent;button.disabled=true;button.textContent=label||"처리 중…"}
+  else{button.disabled=false;button.textContent=button.dataset.oldText||button.textContent}
+}
+
+// ---------- 공통 탭 ----------
+qsa(".mode-tab").forEach(btn=>btn.addEventListener("click",()=>{
+  qsa(".mode-tab").forEach(b=>b.classList.toggle("active",b===btn));
+  const mode=btn.dataset.mode;
+  $("staffMode").classList.toggle("hidden",mode!=="staff");
+  $("adminMode").classList.toggle("hidden",mode!=="admin");
+  if(mode==="admin" && state.adminPin) tryAdminResume();
+}));
+
+// ---------- 직원 화면 ----------
+function liveClock(){
+  const d=new Date();
+  $("liveDate").textContent=new Intl.DateTimeFormat("ko-KR",{year:"numeric",month:"long",day:"numeric",weekday:"long"}).format(d);
+  $("liveTime").textContent=`${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`;
+}
+setInterval(liveClock,1000);liveClock();
+
+async function loadStaffEmployees(){
+  try{
+    const rows=await rpc("attendance_list_employees");
+    state.staffEmployees=Array.isArray(rows)?rows:[];
+    const sel=$("employeeSelect");
+    const remembered=localStorage.getItem("att_last_employee")||"";
+    sel.innerHTML='<option value="">직원을 선택하세요</option>'+state.staffEmployees.map(e=>`<option value="${e.id}">${escapeHtml(e.name)}${e.workplace?` · ${escapeHtml(e.workplace)}`:""}</option>`).join("");
+    if(state.staffEmployees.some(e=>e.id===remembered))sel.value=remembered;
+    setConnection(true,"Supabase 연결됨");
+  }catch(err){
+    setConnection(false,"연결 실패");toast(err.message,"error");
+  }
+}
+
+$("employeeSelect").addEventListener("change",()=>{
+  if($("employeeSelect").value)localStorage.setItem("att_last_employee",$("employeeSelect").value);
+  $("todayBox").classList.add("hidden");
+});
+
+function staffCredentials(){
+  const id=$("employeeSelect").value;
+  const pin=$("employeePin").value.trim();
+  if(!id){toast("근무자를 선택해 주세요.","error");return null}
+  if(pin.length<4){toast("휴대폰 뒤 4자리 PIN을 입력해 주세요.","error");return null}
+  return {id,pin};
+}
+
+async function refreshToday(){
+  const c=staffCredentials();if(!c)return;
+  const btn=$("todayStatusBtn");setBusy(btn,true,"확인 중…");
+  try{
+    const r=await rpc("attendance_employee_today",{p_employee_id:c.id,p_pin:c.pin});
+    if(!r.ok){toast(r.message||"확인 실패","error");return}
+    $("todayIn").textContent=r.check_in||"-";$("todayOut").textContent=r.check_out||"-";$("todayMessage").textContent=r.message||"";$("todayBox").classList.remove("hidden");
+  }catch(err){toast(err.message,"error")}finally{setBusy(btn,false)}
+}
+$("todayStatusBtn").addEventListener("click",refreshToday);
+
+async function clockAction(action){
+  const c=staffCredentials();if(!c)return;
+  const btn=action==="IN"?$("checkInBtn"):$("checkOutBtn");
+  setBusy(btn,true,action==="IN"?"출근 등록 중…":"퇴근 등록 중…");
+  try{
+    const r=await rpc("attendance_clock",{p_employee_id:c.id,p_pin:c.pin,p_action:action});
+    if(!r.ok){toast(r.message||"등록하지 못했습니다.","error");return}
+    toast(`${r.message} ${r.time||""}`,"ok");
+    await refreshToday();
+  }catch(err){toast(err.message,"error")}finally{setBusy(btn,false)}
+}
+$("checkInBtn").addEventListener("click",()=>clockAction("IN"));
+$("checkOutBtn").addEventListener("click",()=>clockAction("OUT"));
+$("employeePin").addEventListener("keydown",e=>{if(e.key==="Enter")refreshToday()});
+
+// ---------- 관리자 로그인 ----------
+async function adminLogin(pin){
+  const r=await rpc("attendance_admin_ping",{p_admin_pin:pin});
+  if(!r.ok)throw new Error(r.message||"관리자 인증 실패");
+  state.adminPin=pin;sessionStorage.setItem("att_admin_pin",pin);
+  $("adminLogin").classList.add("hidden");$("adminApp").classList.remove("hidden");
+  await loadAdminAll();
+}
+async function tryAdminResume(){
+  if(!state.adminPin)return;
+  try{await adminLogin(state.adminPin)}catch{state.adminPin="";sessionStorage.removeItem("att_admin_pin");$("adminLogin").classList.remove("hidden");$("adminApp").classList.add("hidden")}
+}
+$("adminLoginBtn").addEventListener("click",async()=>{
+  const pin=$("adminPinInput").value.trim();if(pin.length<4){toast("관리자 PIN을 입력해 주세요.","error");return}
+  const btn=$("adminLoginBtn");setBusy(btn,true,"로그인 중…");
+  try{await adminLogin(pin);$("adminPinInput").value="";toast("관리자 로그인 완료","ok")}catch(err){toast(err.message,"error")}finally{setBusy(btn,false)}
+});
+$("adminPinInput").addEventListener("keydown",e=>{if(e.key==="Enter")$("adminLoginBtn").click()});
+
+qsa(".admin-tab").forEach(btn=>btn.addEventListener("click",()=>setAdminTab(btn.dataset.adminTab)));
+function setAdminTab(tab){
+  state.currentAdminTab=tab;
+  qsa(".admin-tab").forEach(b=>b.classList.toggle("active",b.dataset.adminTab===tab));
+  ["attendance","payroll","employees","audit","settings"].forEach(t=>$("tab-"+t).classList.toggle("hidden",t!==tab));
+  if(tab==="audit")renderAudit();
+}
+
+$("adminMonth").value=localMonth();
+$("adminMonth").addEventListener("change",async()=>{await loadMonthData();renderAllAdminViews()});
+$("reloadAdminBtn").addEventListener("click",async()=>{await loadAdminAll();toast("새로고침 완료","ok")});
+
+async function loadAdminAll(){
+  if(state.loading)return;state.loading=true;
+  try{
+    const pin=state.adminPin,month=$("adminMonth").value||localMonth();
+    const [employees,monthData,adjustments,audit]=await Promise.all([
+      rpc("attendance_admin_employees",{p_admin_pin:pin}),
+      rpc("attendance_admin_month_data",{p_admin_pin:pin,p_month:month}),
+      rpc("attendance_admin_payroll_adjustments",{p_admin_pin:pin,p_month:month}),
+      rpc("attendance_admin_audit",{p_admin_pin:pin,p_limit:200})
+    ]);
+    state.employees=employees||[];state.monthData=monthData||[];state.payrollAdjustments=adjustments||[];state.audit=audit||[];
+    renderAllAdminViews();
+  }catch(err){toast(err.message,"error");if(/PIN/i.test(err.message))logoutAdmin(false)}finally{state.loading=false}
+}
+async function loadMonthData(){
+  const month=$("adminMonth").value||localMonth();
+  try{
+    const [m,a]=await Promise.all([
+      rpc("attendance_admin_month_data",{p_admin_pin:state.adminPin,p_month:month}),
+      rpc("attendance_admin_payroll_adjustments",{p_admin_pin:state.adminPin,p_month:month})
+    ]);
+    state.monthData=m||[];state.payrollAdjustments=a||[];
+  }catch(err){toast(err.message,"error")}
+}
+
+function renderAllAdminViews(){
+  renderEmployeeFilter();renderAttendance();renderPayroll();renderEmployees();renderAudit();
+}
+
+function relevantEmployees(){
+  const month=$("adminMonth").value||localMonth();const start=`${month}-01`;const end=`${month}-${pad2(monthDays(month))}`;
+  return state.employees.filter(e=>e.active || (e.employment_start&&e.employment_start<=end) || (e.employment_end&&e.employment_end>=start));
+}
+function renderEmployeeFilter(){
+  const sel=$("attendanceEmployeeFilter"),prev=sel.value;
+  const emps=relevantEmployees();
+  sel.innerHTML='<option value="">직원 선택</option>'+emps.map(e=>`<option value="${e.id}">${escapeHtml(e.name)} · ${escapeHtml(e.employee_code)}</option>`).join("");
+  if(emps.some(e=>e.id===prev))sel.value=prev;else if(emps.length)sel.value=emps[0].id;
+}
+$("attendanceEmployeeFilter").addEventListener("change",renderAttendance);
+
+function employeeMonthRows(employeeId){return state.monthData.filter(r=>r.employee_id===employeeId)}
+function attendanceRecordMap(employeeId){return new Map(employeeMonthRows(employeeId).map(r=>[r.work_date,r]))}
+
+function renderAttendance(){
+  const empId=$("attendanceEmployeeFilter").value;
+  const emp=state.employees.find(e=>e.id===empId);
+  const tbody=$("attendanceTable").querySelector("tbody");
+  if(!emp){tbody.innerHTML='<tr><td colspan="9" class="center">직원을 선택해 주세요.</td></tr>';$("attendanceSummary").innerHTML="";return}
+  const month=$("adminMonth").value||localMonth();const map=attendanceRecordMap(empId);const days=monthDays(month);let html="";
+  for(let d=1;d<=days;d++){
+    const ds=`${month}-${pad2(d)}`;const r=map.get(ds);const dowLabel=dow(ds);
+    html+=`<tr>
+      <td><strong>${dateLabel(ds)}</strong></td><td>${dowLabel}</td>
+      <td>${escapeHtml(r?.check_in_time||"-")}</td><td>${escapeHtml(r?.check_out_time||"-")}</td>
+      <td>${statusBadge(r?.status)}</td><td class="num">${r?num(r.paid_units).toFixed(1):"-"}</td>
+      <td class="num">${r?num(r.overtime_hours).toFixed(1):"-"}</td><td>${escapeHtml(r?.memo||"")}</td>
+      <td class="center"><button class="btn btn-outline btn-sm" onclick="openDayEditor('${empId}','${ds}')">${r?"수정":"입력"}</button></td>
+    </tr>`;
+  }
+  tbody.innerHTML=html;
+  const rows=employeeMonthRows(empId),work=rows.filter(r=>r.status==="WORK").length,leave=rows.filter(r=>r.status==="ANNUAL_LEAVE").reduce((a,r)=>a+num(r.paid_units),0),paid=rows.reduce((a,r)=>a+num(r.paid_units),0),ot=rows.reduce((a,r)=>a+num(r.overtime_hours),0);
+  $("attendanceSummary").innerHTML=summaryCards([
+    ["근무일",work,"일"],["연가",leave.toFixed(1),"일"],["유급 인정",paid.toFixed(1),"일"],["연장근로",ot.toFixed(1),"시간"]
+  ]);
+}
+function summaryCards(items){return items.map(([l,v,u])=>`<div class="summary-card"><div class="label">${escapeHtml(l)}</div><div class="value">${escapeHtml(v)} <span class="unit">${escapeHtml(u||"")}</span></div></div>`).join("")}
+
+// ---------- 근태 편집 ----------
+function fillStatusOptions(){$("dayStatus").innerHTML=Object.entries(STATUS).map(([k,v])=>`<option value="${k}">${v.label}</option>`).join("")}
+fillStatusOptions();
+$("dayStatus").addEventListener("change",()=>{const s=STATUS[$("dayStatus").value];if(s)$("dayPaidUnits").value=s.paid});
+
+window.openDayEditor=function(empId,dateStr){
+  const emp=state.employees.find(e=>e.id===empId),r=state.monthData.find(x=>x.employee_id===empId&&x.work_date===dateStr);
+  $("dayEmployeeId").value=empId;$("dayDate").value=dateStr;$("dayModalTitle").textContent=`${emp?.name||"직원"} · ${dateStr}`;
+  $("dayStatus").value=r?.status||"WORK";$("dayCheckIn").value=r?.check_in_time||"";$("dayCheckOut").value=r?.check_out_time||"";
+  $("dayPaidUnits").value=r?num(r.paid_units):STATUS.WORK.paid;$("dayOvertime").value=r?num(r.overtime_hours):0;$("dayMemo").value=r?.memo||"";$("dayReason").value="";
+  $("deleteDayBtn").classList.toggle("hidden",!r);openModal("dayModal");
+}
+$("saveDayBtn").addEventListener("click",async()=>{
+  const btn=$("saveDayBtn");setBusy(btn,true,"저장 중…");
+  try{
+    const r=await rpc("attendance_admin_upsert_day",{
+      p_admin_pin:state.adminPin,p_employee_id:$("dayEmployeeId").value,p_work_date:$("dayDate").value,p_status:$("dayStatus").value,
+      p_check_in:$("dayCheckIn").value||null,p_check_out:$("dayCheckOut").value||null,p_paid_units:num($("dayPaidUnits").value),p_overtime_hours:num($("dayOvertime").value),
+      p_memo:$("dayMemo").value.trim(),p_reason:$("dayReason").value.trim()||"관리자 근태 입력/수정"
+    });
+    if(!r.ok)throw new Error(r.message);closeModal("dayModal");await loadMonthData();await refreshAudit();renderAllAdminViews();toast(r.message,"ok");
+  }catch(err){toast(err.message,"error")}finally{setBusy(btn,false)}
+});
+$("deleteDayBtn").addEventListener("click",async()=>{
+  if(!confirm("이 날짜의 근태 기록을 삭제할까요? 삭제 이력은 남습니다."))return;
+  const btn=$("deleteDayBtn");setBusy(btn,true,"삭제 중…");
+  try{
+    const r=await rpc("attendance_admin_delete_day",{p_admin_pin:state.adminPin,p_employee_id:$("dayEmployeeId").value,p_work_date:$("dayDate").value,p_reason:$("dayReason").value.trim()||"관리자 근태 삭제"});
+    if(!r.ok)throw new Error(r.message);closeModal("dayModal");await loadMonthData();await refreshAudit();renderAllAdminViews();toast(r.message,"ok");
+  }catch(err){toast(err.message,"error")}finally{setBusy(btn,false)}
+});
+
+// ---------- 직원 관리 ----------
+function renderEmployees(){
+  const box=$("employeeCards");
+  if(!state.employees.length){box.innerHTML='<div class="hint">등록된 직원이 없습니다.</div>';return}
+  box.innerHTML=state.employees.map(e=>`<div class="employee-card ${e.active?"":"inactive"}">
+    <div class="employee-card-head"><div><div class="employee-name">${escapeHtml(e.name)}</div><div class="employee-meta">${escapeHtml(e.employee_code)}${e.workplace?` · ${escapeHtml(e.workplace)}`:""}</div></div><span class="status ${e.active?"work":""}">${e.active?"근무중":"비활성"}</span></div>
+    <div class="employee-meta">근무기간: ${escapeHtml(e.employment_start||"-")} ~ ${escapeHtml(e.employment_end||"-")}</div>
+    <div class="employee-pay">일급 <strong>${money(e.daily_wage)}원</strong> · 기준 ${num(e.standard_hours)}시간 · 연장 ×${num(e.overtime_multiplier)}</div>
+    <button class="btn btn-outline btn-sm" style="margin-top:10px" onclick="openEmployeeEditor('${e.id}')">수정</button>
+  </div>`).join("");
+}
+$("newEmployeeBtn").addEventListener("click",()=>openEmployeeEditor(null));
+window.openEmployeeEditor=function(id){
+  const e=id?state.employees.find(x=>x.id===id):null;
+  $("employeeModalTitle").textContent=e?"직원 정보 수정":"직원 등록";$("editEmployeeId").value=e?.id||"";$("editEmployeeName").value=e?.name||"";$("editEmployeeCode").value=e?.employee_code||"";$("editEmployeePin").value="";$("editEmployeeWorkplace").value=e?.workplace||"";
+  $("editEmployeeStart").value=e?.employment_start||"";$("editEmployeeEnd").value=e?.employment_end||"";$("editDailyWage").value=e?num(e.daily_wage):100000;$("editStandardHours").value=e?num(e.standard_hours):8;$("editOvertimeMultiplier").value=e?num(e.overtime_multiplier):1.5;$("editScheduledStart").value=e?.scheduled_start||"";$("editScheduledEnd").value=e?.scheduled_end||"";$("editEmployeeActive").checked=e?!!e.active:true;
+  openModal("employeeModal");setTimeout(()=>$("editEmployeeName").focus(),100);
+}
+$("saveEmployeeBtn").addEventListener("click",async()=>{
+  const btn=$("saveEmployeeBtn");setBusy(btn,true,"저장 중…");
+  try{
+    const id=$("editEmployeeId").value||null;
+    const r=await rpc("attendance_admin_save_employee",{
+      p_admin_pin:state.adminPin,p_employee_id:id,p_name:$("editEmployeeName").value.trim(),p_employee_code:$("editEmployeeCode").value.trim()||null,p_new_pin:$("editEmployeePin").value.trim(),p_workplace:$("editEmployeeWorkplace").value.trim(),
+      p_employment_start:$("editEmployeeStart").value||null,p_employment_end:$("editEmployeeEnd").value||null,p_daily_wage:num($("editDailyWage").value),p_standard_hours:num($("editStandardHours").value),p_overtime_multiplier:num($("editOvertimeMultiplier").value),p_scheduled_start:$("editScheduledStart").value||null,p_scheduled_end:$("editScheduledEnd").value||null,p_active:$("editEmployeeActive").checked
+    });
+    if(!r.ok)throw new Error(r.message);closeModal("employeeModal");await loadAdminAll();await loadStaffEmployees();toast(r.message,"ok");
+  }catch(err){toast(err.message,"error")}finally{setBusy(btn,false)}
+});
+
+// ---------- 급여 ----------
+function adjustmentFor(empId){return state.payrollAdjustments.find(a=>a.employee_id===empId)||{other_allowance:0,deductions:0,memo:""}}
+function payrollRows(){
+  return relevantEmployees().map(e=>{
+    const rows=employeeMonthRows(e.id),adj=adjustmentFor(e.id);
+    const workDays=rows.filter(r=>r.status==="WORK").length;
+    const annualLeave=rows.filter(r=>r.status==="ANNUAL_LEAVE").reduce((a,r)=>a+num(r.paid_units),0);
+    const paidUnits=rows.reduce((a,r)=>a+num(r.paid_units),0);
+    const overtimeHours=rows.reduce((a,r)=>a+num(r.overtime_hours),0);
+    const daily=num(e.daily_wage),std=Math.max(num(e.standard_hours),.01),mult=num(e.overtime_multiplier);
+    const base=daily*paidUnits;const overtime=(daily/std)*mult*overtimeHours;const allowance=num(adj.other_allowance),deductions=num(adj.deductions);const gross=base+overtime+allowance;const net=gross-deductions;
+    return {employee:e,workDays,annualLeave,paidUnits,overtimeHours,base,overtime,allowance,deductions,gross,net,adj};
+  });
+}
+function renderPayroll(){
+  const month=$("adminMonth").value||localMonth();$("payrollMonthTitle").textContent=`${month} 임금지출부`;
+  const rows=payrollRows();
+  $("payrollTable").querySelector("tbody").innerHTML=rows.length?rows.map(r=>`<tr>
+    <td><strong>${escapeHtml(r.employee.name)}</strong><div class="hint">${escapeHtml(r.employee.employee_code)}</div></td>
+    <td class="num">${r.workDays}</td><td class="num">${r.annualLeave.toFixed(1)}</td><td class="num">${r.paidUnits.toFixed(1)}</td><td class="num">${money(r.employee.daily_wage)}</td>
+    <td class="num money">${money(r.base)}</td><td class="num">${money(r.overtime)}</td><td class="num">${money(r.allowance)}</td><td class="num">${money(r.deductions)}</td><td class="num money">${money(r.net)}</td>
+    <td><button class="btn btn-outline btn-sm" onclick="openPayrollEditor('${r.employee.id}')">조정</button></td></tr>`).join(""):'<tr><td colspan="11" class="center">직원이 없습니다.</td></tr>';
+  const totalBase=rows.reduce((a,r)=>a+r.base,0),totalOt=rows.reduce((a,r)=>a+r.overtime,0),totalNet=rows.reduce((a,r)=>a+r.net,0),totalPaid=rows.reduce((a,r)=>a+r.paidUnits,0);
+  $("payrollSummaryCards").innerHTML=summaryCards([["유급 총일수",totalPaid.toFixed(1),"일"],["기본임금",money(totalBase),"원"],["연장수당",money(totalOt),"원"],["실지급 합계",money(totalNet),"원"]]);
+}
+window.openPayrollEditor=function(empId){
+  const e=state.employees.find(x=>x.id===empId),a=adjustmentFor(empId);$("payrollEmployeeId").value=empId;$("payrollModalTitle").textContent=`${e?.name||"직원"} · 수당/공제`;
+  $("payrollAllowance").value=num(a.other_allowance);$("payrollDeduction").value=num(a.deductions);$("payrollMemo").value=a.memo||"";openModal("payrollModal");
+}
+$("savePayrollBtn").addEventListener("click",async()=>{
+  const btn=$("savePayrollBtn");setBusy(btn,true,"저장 중…");
+  try{
+    const r=await rpc("attendance_admin_save_payroll_adjustment",{p_admin_pin:state.adminPin,p_employee_id:$("payrollEmployeeId").value,p_month:$("adminMonth").value,p_other_allowance:num($("payrollAllowance").value),p_deductions:num($("payrollDeduction").value),p_memo:$("payrollMemo").value.trim()});
+    if(!r.ok)throw new Error(r.message);closeModal("payrollModal");await loadMonthData();await refreshAudit();renderPayroll();toast(r.message,"ok");
+  }catch(err){toast(err.message,"error")}finally{setBusy(btn,false)}
+});
+
+// ---------- 수정 이력 ----------
+async function refreshAudit(){try{state.audit=await rpc("attendance_admin_audit",{p_admin_pin:state.adminPin,p_limit:200})||[]}catch{} }
+function actionLabel(a){return ({STAFF_CHECK_IN:"QR 출근",STAFF_CHECK_OUT:"QR 퇴근",ADMIN_CREATE_EMPLOYEE:"직원 등록",ADMIN_UPDATE_EMPLOYEE:"직원 수정",ADMIN_CREATE_DAY:"근태 등록",ADMIN_UPDATE_DAY:"근태 수정",ADMIN_DELETE_DAY:"근태 삭제",ADMIN_PAYROLL_ADJUST:"급여 조정",ADMIN_CHANGE_PIN:"관리자 PIN 변경"})[a]||a}
+function renderAudit(){
+  const box=$("auditList");if(!state.audit.length){box.innerHTML='<div class="card-pad hint">이력이 없습니다.</div>';return}
+  box.innerHTML=state.audit.map(a=>`<div class="audit-item"><div class="audit-top"><span class="audit-action">${escapeHtml(actionLabel(a.action))}${a.employee_name?` · ${escapeHtml(a.employee_name)}`:""}</span><span class="audit-time">${escapeHtml(a.created_at_kst||"")}</span></div><div class="audit-body">${a.work_date?`${escapeHtml(a.work_date)} · `:""}${escapeHtml(a.reason||"")}</div></div>`).join("");
+}
+
+// ---------- CSV ----------
+function csvEscape(v){const s=String(v??"");return /[",\n]/.test(s)?`"${s.replaceAll('"','""')}"`:s}
+function downloadCsv(filename,headers,rows){
+  const csv="\ufeff"+[headers,...rows].map(r=>r.map(csvEscape).join(",")).join("\r\n");
+  const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=filename;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500);
+}
+$("attendanceCsvBtn").addEventListener("click",()=>{
+  const empId=$("attendanceEmployeeFilter").value,emp=state.employees.find(e=>e.id===empId);if(!emp){toast("직원을 선택해 주세요.","error");return}
+  const month=$("adminMonth").value,map=attendanceRecordMap(empId),rows=[];
+  for(let d=1;d<=monthDays(month);d++){const ds=`${month}-${pad2(d)}`,r=map.get(ds);rows.push([ds,dow(ds),emp.employee_code,emp.name,r?.check_in_time||"",r?.check_out_time||"",statusMeta(r?.status).label,r?.paid_units??"",r?.overtime_hours??"",r?.worked_hours??"",r?.memo||""])}
+  downloadCsv(`출근부_${emp.name}_${month}.csv`,["날짜","요일","직원코드","성명","출근","퇴근","근태","유급인정일수","연장근로시간","실근무시간","비고"],rows);
+});
+$("payrollCsvBtn").addEventListener("click",()=>{
+  const month=$("adminMonth").value,rows=payrollRows();
+  downloadCsv(`임금지출부_${month}.csv`,["월","직원코드","성명","근무일수","연가일수","유급인정일수","일급","기본임금","연장근로시간","연장수당","기타수당","공제","총지급액","실지급액","비고"],rows.map(r=>[month,r.employee.employee_code,r.employee.name,r.workDays,r.annualLeave.toFixed(1),r.paidUnits.toFixed(1),Math.round(num(r.employee.daily_wage)),Math.round(r.base),r.overtimeHours.toFixed(1),Math.round(r.overtime),Math.round(r.allowance),Math.round(r.deductions),Math.round(r.gross),Math.round(r.net),r.adj.memo||""]));
+});
+
+// ---------- 설정 ----------
+$("changeAdminPinBtn").addEventListener("click",async()=>{
+  const a=$("newAdminPin").value.trim(),b=$("newAdminPin2").value.trim();if(a.length<4){toast("새 PIN은 4자리 이상으로 입력해 주세요.","error");return}if(a!==b){toast("새 PIN 확인값이 다릅니다.","error");return}
+  const btn=$("changeAdminPinBtn");setBusy(btn,true,"변경 중…");
+  try{const r=await rpc("attendance_admin_change_pin",{p_admin_pin:state.adminPin,p_new_pin:a});if(!r.ok)throw new Error(r.message);toast(r.message,"ok");logoutAdmin(false)}catch(err){toast(err.message,"error")}finally{setBusy(btn,false)}
+});
+$("adminLogoutBtn").addEventListener("click",()=>logoutAdmin(true));
+function logoutAdmin(show=true){state.adminPin="";sessionStorage.removeItem("att_admin_pin");$("adminApp").classList.add("hidden");$("adminLogin").classList.remove("hidden");if(show)toast("로그아웃했습니다.")}
+
+// ---------- 모달 ----------
+function openModal(id){$(id).classList.remove("hidden");document.body.style.overflow="hidden"}
+function closeModal(id){$(id).classList.add("hidden");document.body.style.overflow=""}
+qsa("[data-close]").forEach(b=>b.addEventListener("click",()=>closeModal(b.dataset.close)));
+qsa(".modal-backdrop").forEach(bg=>bg.addEventListener("click",e=>{if(e.target===bg)closeModal(bg.id)}));
+window.addEventListener("keydown",e=>{if(e.key==="Escape")qsa(".modal-backdrop:not(.hidden)").forEach(m=>closeModal(m.id))});
+
+// ---------- 초기화 ----------
+async function init(){
+  state.configured=isConfigured();
+  $("setupWarning").classList.toggle("hidden",state.configured);
+  if(!state.configured){setConnection(false,"설정 필요");return}
+  setConnection(null,"연결 확인 중");
+  await loadStaffEmployees();
+}
+init();
+</script>
+</body>
+</html>
